@@ -53,18 +53,13 @@ def is_valid_update(pages):
 
 
 def correctly_ordered_pages(pages):
-    # do i really need to iterate though the rules multiple times?
     while not is_valid_update(pages):
         for before, after in rules:
             if before in pages and after in pages:
-                # if the before page location is greater than the after page location
-                # swap the two pages
                 if pages.index(before) > pages.index(after):
-                    before_location = pages.index(before)
-                    after_location = pages.index(after)
-
-                    pages[before_location] = pages[after_location]
-                    pages[after_location] = before
+                    # swap the locations of before and after
+                    pages[pages.index(before)] = after
+                    pages[pages.index(after)] = before
 
     return pages
 
