@@ -52,7 +52,7 @@ def is_valid_update(pages):
     return True
 
 
-def correctly_ordered_pages(pages):
+def correctly_order_pages(pages):
     while not is_valid_update(pages):
         for before, after in rules:
             if before in pages and after in pages:
@@ -68,7 +68,7 @@ sum_of_fixed_middles = 0
 for updates in update_list.split("\n"):
     pages = updates.split(",")
     if not is_valid_update(pages):
-        pages = correctly_ordered_pages(pages)
+        pages = correctly_order_pages(pages)
         sum_of_fixed_middles += int(pages[len(pages) // 2])
 
 print(sum_of_fixed_middles)
