@@ -1,6 +1,6 @@
 import copy
-import time
 import os
+import multiprocessing
 
 input = """
 ....#.....
@@ -219,12 +219,23 @@ width = len(map[0])
 
 obstructions = []
 
-for y in range(height):
-    print(f"row: {y}")
+
+def process_row(y):
+    local_obstructions = []
     for x in range(width):
         if map[y][x] == ".":
             if is_in_a_loop(map, (x, y)):
-                obstructions.append((x, y))
+                local_obstructions.append((x, y))
+    return local_obstructions
 
-print(obstructions)
-print(f"obstructions for loops possible: {obstructions}")
+
+if __name__ == "__main__":
+    cores_available = multiprocessing.cpu_count()
+    print(f"starting with a worker pool of: {cores_available}")
+    with multiprocessing.Pool(processes=cores_available) as pool:
+        results = pool.map(process_row, range(height))
+        for result in results:
+            obstructions.extend(result)
+
+    # print(obstructions)
+    print(f"obstructions for loops possible: {len(obstructions)}")
