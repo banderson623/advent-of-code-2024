@@ -1,6 +1,15 @@
 import re
 import os
 
+contents = """
+3   4
+4   3
+2   5
+1   3
+3   9
+3   3
+""".strip()
+
 input_file_path = os.path.join(os.path.dirname(__file__), "input.txt")
 with open(input_file_path, "r") as f:
     contents = f.read()
@@ -23,9 +32,6 @@ for line in lines:
 # order ascending
 firsts.sort()
 lasts.sort()
-
-# print(firsts)
-# print(lasts)
 
 # Part 1
 sum_of_diffs = 0
