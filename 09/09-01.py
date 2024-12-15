@@ -1,27 +1,24 @@
+import os
+
 input = "2333133121414131402"
-# input = "12345"
 
-files = []
-free_spaces = []
+input_file_path = os.path.join(os.path.dirname(__file__), "input.txt")
+with open(input_file_path, "r") as f:
+    input = f.read().strip()
 
-for i in range(0, len(input), 2):
-    file_block = int(input[i])
-    free_space = int(input[i + 1]) if i + 1 < len(input) else None
-    files.append(file_block)
-    free_spaces.append(free_space)
-
-
-# Convert to blocks
 blocks = []
-for id, fileSize in enumerate(files):
-    for i in range(fileSize):
-        blocks.append(id)
-    if id < len(free_spaces) and free_spaces[id]:
-        for i in range(free_spaces[id]):
+
+# Parse input and build blocks
+for i in range(0, len(input), 2):
+    fileSize = int(input[i])
+    freeSize = int(input[i + 1]) if i + 1 < len(input) else None
+
+    for id in range(fileSize):
+        blocks.append(int(i / 2))
+
+    if freeSize is not None:
+        for id in range(freeSize):
             blocks.append(None)
-
-
-print(blocks)
 
 
 def prettyPrintBlocks(blocks):
@@ -49,4 +46,13 @@ for location in range(len(blocks) - 1, 0, -1):
     blocks[next_empty_index] = blocks[location]
     blocks[location] = None
 
-    prettyPrintBlocks(blocks)
+
+prettyPrintBlocks(blocks)
+
+# CHECKSOME TIME
+checksum = 0
+for i, file_id in enumerate(blocks):
+    if file_id is not None:
+        checksum += i * file_id
+
+print(f"checksum: {checksum}")
