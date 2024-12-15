@@ -30,8 +30,6 @@ for index, character in enumerate(input):
             only_enabled_input += "d"
             including = True
 
-# print(enabled_input)
-
 sum = 0
 for [left, right] in re.findall(r"mul\((\d+),(\d+)\)", only_enabled_input):
     product = int(left) * int(right)
