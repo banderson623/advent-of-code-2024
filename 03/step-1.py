@@ -10,8 +10,6 @@ with open(input_file_path, "r") as f:
 sum = 0
 for [left, right] in re.findall(r"mul\((\d+),(\d+)\)", input):
     product = int(left) * int(right)
-    # print(f"{left} * {right} = {product}")
-
     sum += product
 
 print(f"Sum: {sum}")
