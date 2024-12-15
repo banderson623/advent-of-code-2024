@@ -9,15 +9,15 @@ input = """
 10456732
 """
 
-input = """
-10..9..
-2...8..
-3...7..
-4567654
-...8..3
-...9..2
-.....01
-"""
+# input = """
+# 10..9..
+# 2...8..
+# 3...7..
+# 4567654
+# ...8..3
+# ...9..2
+# .....01
+# """
 
 
 trailheads = []
@@ -51,39 +51,69 @@ prettyPrint(map)
 print("Trailheads", trailheads)
 print("Peaks", peaks)
 
-# let's walk down from the peaks and see where it goes
 
+def prettPrintPath(path, map):
+    this_map = []
+    for y in range(HEIGHT):
+        this_map.append(["."] * WIDTH)
+
+    for location in path:
+        x, y = location
+        this_map[y][x] = map[y][x]
+
+    prettyPrint(this_map)
+
+
+def backtracking_path_finding(map, location, current_path, all_paths, trailheads):
+    x, y = location
+
+    if location in current_path:
+        return all_paths
+
+    current_path.append(location)
+
+    current_elevation = int(map[y][x])
+
+    # I have arrived at a trailhead, yay!
+    if location in trailheads:
+        all_paths.append(current_path)
+
+    else:
+        for next in [(x, y - 1), (x + 1, y), (x, y + 1), (x - 1, y)]:
+            next_x, next_y = next
+
+            # make sure we aren't off the boundary of the map
+            if next_x < 0 or next_x >= WIDTH or next_y < 0 or next_y >= HEIGHT:
+                continue
+
+            if map[next_y][next_x] == ".":
+                continue
+
+            next_evelvation = int(map[next_y][next_x])
+
+            if next_evelvation == current_elevation - 1:
+                # print(f"...going to {next} (from {current_elevation} to {next_evelvation})")
+                backtracking_path_finding(map, next, current_path.copy(), all_paths, trailheads)
+
+    # current_path.pop()
+
+
+# let's walk down from the peaks and see where it goes
 for peak in peaks:
     x, y = peak
 
-    # python is silly the end range is not inclusive
+    all_paths = []
+    backtracking_path_finding(map, peak, [], all_paths, trailheads)
+    print("------------------------------------------")
+    print("Done walking down from peak", peak, "Paths:", len(all_paths))
+    # print("Paths:", all_paths)
 
-    for next in range(8, -1, -1):
-        # print("...at", x, y, "looking for", next)
+    for path in all_paths:
+        trailhead = path[-1]
+        for location in path:
+            if location in trailheads:
+                scores[trailhead] += 1
 
-        # check up
-        if map[max(0, y - 1)][x] == str(next):
-            y -= 1
-
-        # check down
-        elif map[min(y + 1, HEIGHT - 1)][x] == str(next):
-            y += 1
-
-        # check right
-        elif map[y][min(x + 1, WIDTH - 1)] == str(next):
-            x += 1
-
-        # check left
-        elif map[y][max(0, x - 1)] == str(next):
-            x -= 1
-        else:
-            print("Dead End, could not find", next, "neighboring: ", x, y)
-            break
-
-        if next == 0:
-            print("arrived at trailhead", x, y)
-            scores[(x, y)] += 1
-            break
-
+        # prettPrintPath(path, map)
 
 print("Scores", scores, sum(scores.values()))
