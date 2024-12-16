@@ -31,16 +31,6 @@ with open(input_file_path, "r") as f:
     input = f.read().strip()
 
 map = []
-
-
-# function to display the map
-def prettyPrint(map):
-    print("+" + "-" * len(map[0]) + "+")
-    for y, row in enumerate(map):
-        print("|" + "".join(row) + "|")
-    print("+" + "-" * len(map[0]) + "+")
-
-
 plant_counts = {}
 plant_locations = {}
 
