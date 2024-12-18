@@ -11,12 +11,12 @@ EEEC
 # OXOXO
 # OOOOO"""
 
-input = """
-EEEEE
-EXXXX
-EEEEE
-EXXXX
-EEEEE"""
+# input = """
+# EEEEE
+# EXXXX
+# EEEEE
+# EXXXX
+# EEEEE"""
 
 # input = """
 # AAAAAA
@@ -26,17 +26,17 @@ EEEEE"""
 # ABBAAA
 # AAAAAA"""
 
-input = """
-RRRRIICCFF
-RRRRIICCCF
-VVRRRCCFFF
-VVRCCCJFFF
-VVVVCJJCFE
-VVIVCCJJEE
-VVIIICJJEE
-MIIIIIJJEE
-MIIISIJEEE
-MMMISSJEEE"""
+# input = """
+# RRRRIICCFF
+# RRRRIICCCF
+# VVRRRCCFFF
+# VVRCCCJFFF
+# VVVVCJJCFE
+# VVIVCCJJEE
+# VVIIICJJEE
+# MIIIIIJJEE
+# MIIISIJEEE
+# MMMISSJEEE"""
 
 
 # import os
@@ -135,13 +135,15 @@ def walls_for_the_region(region):
             if neighbor_location not in locations:
                 perimeters.add(direction)
 
-            # Now look up if my neighbor has a perimeter (if not we can count this as a wall)
-            neighbor_perimeters = perimeter_directions.get(neighbor_location, set())
-            for np in neighbor_perimeters:
-                all_neighbor_perimeters.add(np)
+            # # Now look up if my neighbor has a perimeter (if not we can count this as a wall)
+            # neighbor_perimeters = perimeter_directions.get(neighbor_location, set())
+            # for np in neighbor_perimeters:
+            #     all_neighbor_perimeters.add(np)
 
-        # Now walk through those directions again, and check if my neighbor has a perimeter in that direction
-        # If not, I think we can count that as a wall
+        perimeter_directions[plant_location] = perimeters
+
+    for plant_location in locations:
+        x, y = plant_location
 
         for direction in DIRECTIONS:
             if direction not in all_neighbor_perimeters and direction in perimeters:
@@ -151,10 +153,11 @@ def walls_for_the_region(region):
                 )
                 wall_count += 1
 
-        # print(f"Perimeters for {plant_location} are {perimeters}")
-        perimeter_directions[plant_location] = perimeters
+    print(f"Perimeters for {plant_location} are {perimeters}")
+    perimeter_directions[plant_location] = perimeters
 
     # print(perimeter_directions)
+    print(f"Perimeter directions: {perimeter_directions}")
     return wall_count
 
 
@@ -174,13 +177,16 @@ for plant in plant_locations:
         regions.append((plant, region))
 
 total_cost = 0
+print(input)
 for region in regions:
     plant, locations = region
-    perimiter = perimeter_for_the_region(region)
+    # perimiter = perimeter_for_the_region(region)
+    print(f"==== {plant} ====")
     wall_count = walls_for_the_region(region)
+    print()
     area = len(locations)
     price = area * wall_count
     total_cost += price
     print(f"Walls for {plant} is {wall_count}, area {area} - price ${price}")
 
-print("total cost: $", total_cost)
+# print("total cost: $", total_cost)
