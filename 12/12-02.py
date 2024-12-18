@@ -5,11 +5,11 @@ BBCC
 EEEC
 """
 
-# input = """OOOOO
-# OXOXO
-# OOOOO
-# OXOXO
-# OOOOO"""
+input = """OOOOO
+OXOXO
+OOOOO
+OXOXO
+OOOOO"""
 
 # input = """
 # EEEEE
@@ -18,25 +18,25 @@ EEEC
 # EXXXX
 # EEEEE"""
 
-# input = """
-# AAAAAA
-# AAABBA
-# AAABBA
-# ABBAAA
-# ABBAAA
-# AAAAAA"""
+input = """
+AAAAAA
+AAABBA
+AAABBA
+ABBAAA
+ABBAAA
+AAAAAA"""
 
-# input = """
-# RRRRIICCFF
-# RRRRIICCCF
-# VVRRRCCFFF
-# VVRCCCJFFF
-# VVVVCJJCFE
-# VVIVCCJJEE
-# VVIIICJJEE
-# MIIIIIJJEE
-# MIIISIJEEE
-# MMMISSJEEE"""
+input = """
+RRRRIICCFF
+RRRRIICCCF
+VVRRRCCFFF
+VVRCCCJFFF
+VVVVCJJCFE
+VVIVCCJJEE
+VVIIICJJEE
+MIIIIIJJEE
+MIIISIJEEE
+MMMISSJEEE"""
 
 
 # import os
@@ -113,9 +113,24 @@ DIRECTIONS = {"w": (-1, 0), "e": (1, 0), "s": (0, 1), "n": (0, -1)}
 
 def walls_for_the_region(region):
     wall_count = 0
-    locations = region[1]
+    plant_type, locations = region
+
+    if len(locations) == 1:
+        return 4
+    if len(locations) == 2:
+        return 4
+
+    log_plants = []
 
     perimeter_directions = {}
+
+    region_vertical_steps = abs(
+        max([location[1] for location in locations]) - min([location[1] for location in locations])
+    )
+    region_horizontal_steps = abs(
+        max([location[0] for location in locations]) - min([location[0] for location in locations])
+    )
+    # print(f"max steps vertical:{region_vertical_steps}, horizontal:{region_horizontal_steps}")
 
     for plant_location in locations:
         x, y = plant_location
@@ -135,29 +150,90 @@ def walls_for_the_region(region):
             if neighbor_location not in locations:
                 perimeters.add(direction)
 
-            # # Now look up if my neighbor has a perimeter (if not we can count this as a wall)
-            # neighbor_perimeters = perimeter_directions.get(neighbor_location, set())
-            # for np in neighbor_perimeters:
-            #     all_neighbor_perimeters.add(np)
-
+        # print(f"Perimeters for {plant_location} are {perimeters}")
         perimeter_directions[plant_location] = perimeters
+
+    if plant_type in log_plants:
+        print(f"Perimeters for {plant_type}: {perimeter_directions}")
+
+    # okay now we have every permitter for each plant location
+    # lets start in the top left and trace each wall
+    # we'll keep track of the walls we've already counted so we don't double count
+    counted_locations_and_direction = set()
+    walls = set()
 
     for plant_location in locations:
         x, y = plant_location
 
-        for direction in DIRECTIONS:
-            if direction not in all_neighbor_perimeters and direction in perimeters:
+        # if plant_type in log_plants:
+        #     print(f"Checking location {plant_location}, {perimeter_directions[plant_location]}")
 
-                print(
-                    f"Adding wall at {plant_location} in direction {direction} (because neighbor does not have a perimeter in {direction})"
-                )
-                wall_count += 1
+        for direction in perimeter_directions[plant_location]:
+            wall_friends = set()
+            if direction in ["w", "e"]:
+                for walk_direction in [1, -1]:
+                    # if plant_type in log_plants:
+                    #     print(
+                    #         f" ^v Checking along the {direction} for {plant_location}, moving vertical, stepping {walk_direction}"
+                    #     )
 
-    print(f"Perimeters for {plant_location} are {perimeters}")
-    perimeter_directions[plant_location] = perimeters
+                    for i in range(0, walk_direction * (region_vertical_steps + 1), walk_direction):
+                        checking_location = (x, y + i)
+
+                        # if plant_type in log_plants:
+                        #     print(f"checking {direction} {checking_location}")
+
+                        if checking_location in locations and direction in perimeter_directions[checking_location]:
+                            # if plant_type in log_plants:
+                            #     print(f"found a wall friend", (direction, checking_location))
+                            if (direction, checking_location) not in counted_locations_and_direction:
+                                wall_friends.add((direction, checking_location))
+                            counted_locations_and_direction.add((direction, checking_location))
+                        else:
+                            # no more shared perimeter neighbors found, abort
+                            break
+
+            if direction in ["n", "s"]:
+
+                for walk_direction in [1, -1]:
+                    if plant_type in log_plants:
+                        print(
+                            f" <==> Checking along the {direction} for {plant_location}, moving horizontal, stepping {walk_direction}"
+                        )
+
+                    for i in range(0, walk_direction * (region_horizontal_steps + 1), walk_direction):
+
+                        checking_location = (x + i, y)
+                        if plant_type in log_plants:
+                            print(f"  {i}  <==> {checking_location}")
+
+                        if checking_location in locations and direction in perimeter_directions[checking_location]:
+                            # if plant_type in log_plants:
+                            #     print(f"found a wall friend", (direction, checking_location))
+
+                            if (direction, checking_location) not in counted_locations_and_direction:
+                                wall_friends.add((direction, checking_location))
+
+                            counted_locations_and_direction.add((direction, checking_location))
+                        else:
+                            if plant_type in log_plants:
+                                print(f"no more shared perimeter neighbors found, abort")
+                            # no more shared perimeter neighbors found, abort
+                            break
+
+            if len(wall_friends) > 0:
+                walls.add(frozenset(wall_friends))
+
+                if plant_type in log_plants:
+                    print(f"found walls", wall_friends)
+                    print(f"counted locations and directions", counted_locations_and_direction)
+
+    if plant_type in log_plants:
+        print(f"Walls for region: {walls}")
 
     # print(perimeter_directions)
-    print(f"Perimeter directions: {perimeter_directions}")
+    # print(f"Perimeter directions: {perimeter_directions}")
+    wall_count = len(walls)
     return wall_count
 
 
@@ -181,12 +257,12 @@ print(input)
 for region in regions:
     plant, locations = region
     # perimiter = perimeter_for_the_region(region)
-    print(f"==== {plant} ====")
+    # print()
+    # print(f"==== {plant} ====")
     wall_count = walls_for_the_region(region)
-    print()
     area = len(locations)
     price = area * wall_count
     total_cost += price
     print(f"Walls for {plant} is {wall_count}, area {area} - price ${price}")
 
-# print("total cost: $", total_cost)
+print("total cost: $", total_cost)
