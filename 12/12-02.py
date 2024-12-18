@@ -1,3 +1,11 @@
+# Commentary on the strategy:
+# I tried a lot of things to get this to work. Perimeter is easier.
+# Wall counting requires a lot of bookkeeping. And roughly finding a perimeter, and
+# walking along it (both directions), until you end of out perimeter (aka it changes direction)
+# you also need to keep track of the wall parts you've walked along so you don't double count.
+
+# I'm sure this could be optimized.
+
 input = """
 AAAA
 BBCD
