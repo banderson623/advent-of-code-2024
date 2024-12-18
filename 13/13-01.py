@@ -34,9 +34,12 @@ machines = input.strip().split("\n\n")
 
 
 def brute_diophantine(a, b, goal):
+    # Nice hint about button presses
+    #   "You estimate that each button would need to be pressed no more than
+    #    100 times to win a prize...."
     solutions = []
-    for x in range(goal // 4):
-        for y in range(goal // 4):
+    for x in range(100):
+        for y in range(100):
             if a * x + b * y == goal:
                 solutions.append((x, y))
     return solutions
