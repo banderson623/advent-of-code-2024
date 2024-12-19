@@ -1,14 +1,10 @@
 [project]
 name = "advent-of-code-2024"
 version = "0.1.0"
-description = "Add your description here"
-authors = [
-    { name = "Brian Anderson", email = "brian@gaincompliance.com" }
-]
+description = "Advent of code 2024"
 dependencies = [
     "sympy>=1.13.3",
 ]
-readme = "README.md"
 requires-python = ">= 3.8"
 
 [build-system]
@@ -23,4 +19,4 @@ dev-dependencies = []
 allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/advent_of_code_2024"]
+packages = ["."]
