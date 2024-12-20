@@ -30,7 +30,6 @@ with open(input_file_path, "r") as f:
 robots = []
 for line in input.strip().split("\n"):
     x, y, dx, dy = map(int, re.findall(r"([0-9]+),([0-9]+).*=([-0-9]+),([-0-9]+)", line)[0])
-    print(line, "->", x, y, dx, dy)
     robots.append({"p": (x, y), "v": (dx, dy)})
 
 
@@ -57,36 +56,35 @@ def prettyPrint(robots, with_quadrants=True):
     print("+" + "-" * len(map[0]) + "+")
 
 
-prettyPrint(robots, with_quadrants=False)
+for second in range(10000):
+    map_for_this_second = [[0 for _ in range(WIDTH)] for _ in range(HEIGHT)]
 
-for second in range(100):
     for robot in robots:
         x, y = robot["p"]
         next_x = (x + robot["v"][0]) % WIDTH
         next_y = (y + robot["v"][1]) % HEIGHT
         robot["p"] = (next_x, next_y)
 
-    sleep(0.25)
-    prettyPrint(robots, with_quadrants=False)
+        map_for_this_second[next_y][next_x] = 1
 
+    # Display the map if there are more than 8 robots in a row (tree branch)
+    should_show_second = False
+    for row in map_for_this_second:
+        number_consecutive = 0
+        last_position = 0
+        for position in row:
+            if last_position and position:
+                number_consecutive += 1
+            else:
+                number_consecutive = 0
 
-quadrantsCount = [0, 0, 0, 0]
+            last_position = position
 
-for robot in robots:
-    x, y = robot["p"]
+            if number_consecutive > 8:
+                should_show_second = True
+                continue
 
-    if x < WIDTH // 2:
-        if y < HEIGHT // 2:
-            quadrantsCount[0] += 1
-        elif y > HEIGHT // 2:
-            quadrantsCount[1] += 1
-    elif x > WIDTH // 2:
-        if y < HEIGHT // 2:
-            quadrantsCount[2] += 1
-        elif y > HEIGHT // 2:
-            quadrantsCount[3] += 1
-
-
-prettyPrint(robots)
-print(quadrantsCount)
-print("Product of quadrants", quadrantsCount[0] * quadrantsCount[1] * quadrantsCount[2] * quadrantsCount[3])
+    # sleep(0.1)
+    if should_show_second:
+        print("seconds:", second + 1)
+        prettyPrint(robots, with_quadrants=False)
