@@ -25,13 +25,47 @@ vvv<<^>^v^^><<>>><>^<<><^vv^^<>vvv<>><^^v>^>vv<>v<<<<v<^v>^<^^>>>^<v<v
 v^^>>><<^^<>>^v^<v^vv<>v^<<>^<^v^v><^<<<><<^<v><v<>vv>>v><v^<vv<>v^<<^
 """
 
-input = """
-###########
-#@..O..O.O#
-###########
 
->>>>>>>>
-"""
+# input = """
+# ###########
+# #@..O..O.O#
+# ###########
+
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# """
+
+# input = """
+# #####
+# #...#
+# #.O.#
+# #@O.#
+# #...#
+# #####
+
+# >v>^
+# """
+
+# input = """
+# #####
+# #O..#
+# #...#
+# #O..#
+# #.@.#
+# #####
+
+# <^^^
+# """
+
+# input = """
+# #####
+# #...#
+# #@O.#
+# #..O#
+# #...#
+# #####
+
+# >>^>v
+# """
 
 # input = """
 # #######
@@ -45,11 +79,11 @@ input = """
 # <vv<<^^<<^^
 # """
 
-# import os
+import os
 
-# input_file_path = os.path.join(os.path.dirname(__file__), "input.txt")
-# with open(input_file_path, "r") as f:
-#     input = f.read().strip()
+input_file_path = os.path.join(os.path.dirname(__file__), "input.txt")
+with open(input_file_path, "r") as f:
+    input = f.read().strip()
 
 warehouse, moves = [x.strip() for x in input.strip().split("\n\n")]
 
@@ -137,8 +171,10 @@ def push_boxes(x, y, direction, map):
     if x < 0 or y < 0:
         return
 
-    # print(f"pushing ({direction}) boxes ({x}, {y}) - Piece: {map[y][x]}")
-    # prettyPrint(map)
+    piece_being_pushed = map[y][x]
+
+    if piece_being_pushed not in BOX_SYMBOLS:
+        return
 
     (dx, dy) = MOVE_MAP[direction]
 
@@ -153,28 +189,32 @@ def push_boxes(x, y, direction, map):
     if map[pushed_y][pushed_x] in BOX_SYMBOLS:
         push_boxes(pushed_x, pushed_y, direction, map)
 
-        # account for the case where the box's side is impacting
-        # another box...
-        #
-        # Pushing "up"
-        #    +------------+
-        #    |.......##...|
-        #    |............|
-        #    |....[][]....|
-        #    |.....[].....|
-        #    |......@.....|
-        #    +------------+
+    # account for the case where the box's side is impacting
+    # another box...
+    #
+    # Pushing "up"
+    #    +------------+
+    #    |.......##...|
+    #    |............|
+    #    |....[][]....|
+    #    |.....[].....|
+    #    |......@.....|
+    #    +------------+
+    # on a vertical move, account for the left side of the box being pushed
+    if map[y][x] == RIGHT_SIDE_OF_BOX and is_vertical_move:
+        push_boxes(pushed_x - 1, pushed_y, direction, map)
 
-        # on a vertical move, account for the left side of the box being pushed
-        if map[y][x] == RIGHT_SIDE_OF_BOX and is_vertical_move:
-            push_boxes(pushed_x - 1, pushed_y, direction, map)
-
-        if map[y][x] == LEFT_SIDE_OF_BOX and is_vertical_move:
-            push_boxes(pushed_x + 1, pushed_y, direction, map)
+    if map[y][x] == LEFT_SIDE_OF_BOX and is_vertical_move:
+        push_boxes(pushed_x + 1, pushed_y, direction, map)
 
     if is_horizontal_move:
-        for x, bs in enumerate(BOX_SYMBOLS):
-            map[pushed_y][pushed_x + x] = bs
+        for x_adder, symbol in enumerate(BOX_SYMBOLS):
+
+            # if moving right x has already had +1 added to it
+            if direction == ">":
+                x_adder -= 1
+
+            map[pushed_y][pushed_x + x_adder] = symbol
 
     else:  # vertical_move
         if map[y][x] == LEFT_SIDE_OF_BOX:
@@ -185,18 +225,19 @@ def push_boxes(x, y, direction, map):
             map[pushed_y][pushed_x - 1] = BOX_SYMBOLS[0]
             map[pushed_y][pushed_x] = BOX_SYMBOLS[1]
             map[y][x - 1] = EMPTY_SYMBOL
+        map[y][x] = EMPTY_SYMBOL
 
 
-def can_move(x, y, move, map):
+def can_move(x, y, direction, map):
     x, y = robot_location
-    (dx, dy) = MOVE_MAP[move]
+    (dx, dy) = MOVE_MAP[direction]
     future_x, future_y = x + dx, y + dy
     if map[future_y][future_x] == EMPTY_SYMBOL:
         return True
     elif map[future_y][future_x] == WALL_SYMBOL:
         return False
     elif map[future_y][future_x] in BOX_SYMBOLS:
-        return can_compact(x, y, move, map)
+        return can_compact(x, y, direction, map)
 
     else:
         return False
@@ -214,8 +255,9 @@ for desired_move in moves:
         map[y + dy][x + dx] = ROBOT_SYMBOL
         robot_location = (x + dx, y + dy)
 
-    prettyPrint(map)
-    sleep(0.25)
+    # prettyPrint(map)
+    # sleep(0.5)
+    # sleep(0.1)
 
 prettyPrint(map)
 
@@ -223,9 +265,8 @@ prettyPrint(map)
 gps_sum = 0
 for y, row in enumerate(map):
     for x, item in enumerate(row):
-        # if item in BOX_SYMBOLS:
-        if item == BOX_SYMBOLS[0]:
-            print(f"({x},{y}) - {y * 100 + x}")
+        # just count the left side (closest to top right)
+        if item == LEFT_SIDE_OF_BOX:
             gps_sum += y * 100 + x
 
 print(f"gps sum: {gps_sum}")
