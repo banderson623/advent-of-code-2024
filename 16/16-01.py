@@ -18,24 +18,24 @@ input = """
 #S..#.....#...#
 ###############"""
 
-input = """
-#################
-#...#...#...#..E#
-#.#.#.#.#.#.#.#.#
-#.#.#.#...#...#.#
-#.#.#.#.###.#.#.#
-#...#.#.#.....#.#
-#.#.#.#.#.#####.#
-#.#...#.#.#.....#
-#.#.#####.#.###.#
-#.#.#.......#...#
-#.#.###.#####.###
-#.#.#...#.....#.#
-#.#.#.#####.###.#
-#.#.#.........#.#
-#.#.#.#########.#
-#S#.............#
-#################"""
+# input = """
+# #################
+# #...#...#...#..E#
+# #.#.#.#.#.#.#.#.#
+# #.#.#.#...#...#.#
+# #.#.#.#.###.#.#.#
+# #...#.#.#.....#.#
+# #.#.#.#.#.#####.#
+# #.#...#.#.#.....#
+# #.#.#####.#.###.#
+# #.#.#.......#...#
+# #.#.###.#####.###
+# #.#.#...#.....#.#
+# #.#.#.#####.###.#
+# #.#.#.........#.#
+# #.#.#.#########.#
+# #S#.............#
+# #################"""
 
 # input = """
 # #########################
@@ -126,25 +126,13 @@ def dijkstra_solver(map, start_location, end_location):
         #  2. rotating left
         #  3. rotating right
         cost, location, direction = heapq.heappop(queue)
-        print(f"Exploring {location} facing {DIRECTION_NAMES[direction]} at cost {cost}")
         x, y = location
 
         # map[y][x] = DIRECTION_SYMBOLS[direction]
         # prettyPrint(map)
-        # sleep(0.15)
+        # sleep(0.1)
 
         if location == end_location:
-            print(f"I got there the cheapest way, it cost me {cost}")
-
-            # at = (end_location[0], end_location[1], direction)
-            # start = (start_location[0], start_location[1], START_DIRECTION)
-            # while at != start:
-            #     x, y, direction = at
-            #     map[y][x] = DIRECTION_SYMBOLS[direction]
-            #     at = journey[at]
-            #     prettyPrint(map)
-            #     sleep(0.15)
-
             return cost
 
         if (x, y, direction) in visited:
@@ -158,44 +146,26 @@ def dijkstra_solver(map, start_location, end_location):
         next_y = y + dy
 
         if map[next_y][next_x] in EXPLORABLE_SPACES:
-            print(f"moving {DIRECTION_NAMES[direction]} from ({x},{y}) to ({next_x}, {next_y})")
             journey[(next_x, next_y, direction)] = (x, y, direction)
             heapq.heappush(queue, (cost + 1, (next_x, next_y), direction))
 
         # Rotate LEFT to explore
         left = (direction - 1) % len(MOVEMENTS)
         if (x, y, left) not in visited:
-            journey[(x, y, left)] = (x, y, direction)
-            heapq.heappush(queue, (cost + 1000, (x, y), left))
+            dx, dy = MOVEMENTS[left]
+            if map[y + dy][x + dx] in EXPLORABLE_SPACES:
+                heapq.heappush(queue, (cost + 1000, (x, y), left))
 
         # rotate RIGHT to explore
         right = (direction + 1) % len(MOVEMENTS)
         if (x, y, right) not in visited:
-            journey[(x, y, right)] = (x, y, direction)
-            heapq.heappush(queue, (cost + 1000, (x, y), right))
+            dx, dy = MOVEMENTS[right]
+            if map[y + dy][x + dx] in EXPLORABLE_SPACES:
+                heapq.heappush(queue, (cost + 1000, (x, y), right))
 
-    # print(f"Queue size {len(queue)}. Visited {visited}")
     print(f"I couldn't find a way to the end")
     return -1
 
 
 cost = dijkstra_solver(map, start_location, end_location)
-# print("journey", journey)
 print(cost)
-prettyPrint(map)
-
-
-DIR_SYMBOL = {"N": "^", "E": ">", "W": "<", "S": "v"}
-# for step in journey:
-#     # print(f"trying to plot", step)
-#     location, direction = step
-#     x, y = location
-#     map[y][x] = DIR_SYMBOL[direction]
-
-# map[end_location[1]][end_location[0]] = "E"
-# map[start_location[1]][start_location[0]] = "S"
-
-# prettyPrint(map)
-
-# 147512 is too high
-# 115544 is too high
